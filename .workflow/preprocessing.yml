@@ -1,0 +1,44 @@
+name: preprocessing-automation-mirananda
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+jobs:
+  run-preprocessing:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pandas  # Jika Anda belum ada requirements.txt, langsung install pandas di sini
+
+      - name: Run preprocessing script
+        run: |
+          python preprocessing/automate_Mirananda.py
+
+      - name: Commit and Push changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "Automated: Update preprocessed data" || echo "No changes to commit"
+          git push
+
+      - name: Upload preprocessed dataset as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: youtube_comment_preprocessed
+          path: preprocessing/namadataset_preprocessing/youtube_preprocessed.csv
